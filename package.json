@@ -1,0 +1,19 @@
+{
+  "name": "chrome-extension-ts",
+  "version": "1.0.0",
+  "description": "Chrome Extension with TypeScript",
+  "private": true,
+  "scripts": {
+    "dev": "webpack --watch --config webpack.config.js --mode=development",
+    "build": "webpack --config webpack.config.js --mode=production"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "copy-webpack-plugin": "^11.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-ext-reloader": "^1.1.13"
+  }
+}

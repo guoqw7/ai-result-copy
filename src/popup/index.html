@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI助手复制工具</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 16px;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .option-container {
+      margin-bottom: 16px;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .checkbox-container input {
+      margin-right: 8px;
+    }
+    .status {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 4px;
+      background-color: #f5f5f5;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }
+  </style>
+</head>
+<body>
+  <h2>AI助手复制工具2</h2>
+  
+  <div class="option-container">
+    <div class="checkbox-container">
+      <input type="checkbox" id="removeReferences" checked>
+      <label for="removeReferences">去除参考文献角标</label>
+    </div>
+    <div id="status" class="status">已启用复制功能</div>
+  </div>
+  
+  <div>支持平台：通义千问、文心一言、豆包、元宝</div>
+  
+  <button id="saveButton">保存设置</button>
+  <script src="popup.js"></script>
+</body>
+</html>
