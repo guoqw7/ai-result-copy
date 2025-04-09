@@ -2,8 +2,18 @@
   "manifest_version": 3,
   "name": "AI助手复制工具",
   "version": "1.0.0",
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
   "description": "为AI助手平台（通义千问、文心一言、豆包、元宝、百度）添加复制按钮，整理markdown文本并去除参考文献角标",
-  "permissions": ["storage", "activeTab", "clipboardWrite"],
+  "permissions": ["storage", "clipboardWrite"],
+  "host_permissions": [
+    "*://*.baidu.com/*",
+    "*://*.doubao.com/*",
+    "*://*.tencent.com/*"
+  ],
   "action": {
     "default_popup": "popup.html"
   },

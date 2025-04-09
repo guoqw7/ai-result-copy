@@ -34,8 +34,8 @@ module.exports = (env, argv) => ({
         { from: 'src/assets', to: 'assets', noErrorOnMissing: true },
       ],
     }),
-      new ExtReloader({
-        port: 9090,
+    argv.mode === 'development' && new ExtReloader({
+        port: 9091,
         reloadPage: true,
         manifest: path.resolve(__dirname, 'src/manifest.json'),
         entries: {

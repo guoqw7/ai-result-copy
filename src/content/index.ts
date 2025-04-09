@@ -21,7 +21,7 @@ const platforms: PlatformConfig[] = [
   // { name: '阿里-通义千问', selector: '', markdownContentClass: '', referenceSelector: ''  },
   { name: '百度-AI搜索', selector: 'cosd-markdown-content', markdownContentClass: 'marklang', referenceSelector: 'span[disable-audio="true"][disable-copy="true"]' },
   // { name: '百度-文心一言', selector: '', markdownContentClass: '', referenceSelector: ''  },
-  // { name: '字节-豆包', selector: 'receive-message-box-content-', markdownContentClass: 'flow-markdown-body', referenceSelector: '.ref_content_circle'  },
+  { name: '字节-豆包', selector: 'receive-message-box-content-', markdownContentClass: 'flow-markdown-body', referenceSelector: '.ref_content_circle'  },
   { name: '腾讯-元宝', selector: 'hyc-content-md', markdownContentClass: 'hyc-common-markdown', referenceSelector: '.hyc-common-markdown__ref-list'  }
 ];
 
@@ -63,10 +63,15 @@ function stripMarkdown(text: string) {
     .replace(/^>\s+/gm, '')            // 移除引用标记
     .trim();
 }
-// 处理Markdown文本，去除参考文献角标和特殊span节点
+// 处理Markdown文本，根据配置决定是否去除参考文献角标和特殊span节点
 function processMarkdown(markdown:Element, referenceSelector:string): Element {
-  markdown.querySelectorAll(referenceSelector).forEach(span => span.remove());
-  return markdown;
+  // 创建节点的深拷贝，以免修改原始节点
+  const clonedMarkdown = markdown.cloneNode(true) as Element;
+  // 根据配置决定是否在拷贝的节点上移除参考文献角标
+  if (config.removeReferences) {
+    clonedMarkdown.querySelectorAll(referenceSelector).forEach(span => span.remove());
+  }
+  return clonedMarkdown;
 }
 
 const backgroundColorOut = 'linear-gradient(135deg, rgba(25, 239, 192, 0.6), rgba(64, 128, 255, 0.4))';

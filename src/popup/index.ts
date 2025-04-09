@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.set({ removeReferences }, () => {
       updateStatus(removeReferences);
       
+      // 显示保存成功提示
+      statusDiv.textContent = `保存成功！${removeReferences ? '（去除参考文献角标）' : '（保留参考文献角标）'}`;
+      
       // 向所有标签页发送配置更新消息
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach(tab => {
@@ -37,6 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
       });
+      
+      // 1秒后自动关闭popup窗口
+      setTimeout(() => {
+        window.close();
+      }, 1000);
     });
   });
 });
