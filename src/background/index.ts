@@ -2,7 +2,8 @@
 chrome.runtime.onInstalled.addListener(() => {
   // 初始化配置数据
   chrome.storage.local.set({ 
-    removeReferences: true // 默认去除参考文献角标
+    removeReferences: true, // 默认去除参考文献角标
+    userConsent: true // 默认获得用户同意
   });
   console.log('AI助手复制工具已安装');
 });

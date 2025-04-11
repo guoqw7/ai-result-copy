@@ -6,7 +6,7 @@
   <title>AI助手复制工具</title>
   <style>
     body {
-      width: 300px;
+      width: 320px;
       padding: 16px;
       font-family: system-ui, -apple-system, sans-serif;
     }
@@ -46,11 +46,48 @@
     button:hover {
       background-color: #3367d6;
     }
+    .privacy-notice {
+      margin-top: 16px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-left: 3px solid #4285f4;
+      font-size: 13px;
+    }
+    .privacy-link {
+      color: #4285f4;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 5px;
+    }
+    .privacy-link:hover {
+      text-decoration: underline;
+    }
+    .consent-container {
+      margin-top: 12px;
+      padding: 10px;
+      background-color: #fff8e1;
+      border-radius: 4px;
+      border: 1px solid #ffe082;
+    }
+    .disabled-notice {
+      color: #d32f2f;
+      font-weight: bold;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
   <h2>AI助手智能复制工具</h2>
-  <div class="option-container">
+  
+  <div id="consent-container" class="consent-container">
+    <div class="checkbox-container">
+      <input type="checkbox" id="userConsent">
+      <label for="userConsent"><strong>我同意</strong>此扩展在我使用复制功能时临时处理内容</label>
+    </div>
+    <div id="consent-status" class="disabled-notice">请同意隐私政策以启用功能</div>
+  </div>
+  
+  <div class="option-container" id="options" style="display: none;">
     <div class="checkbox-container">
       <input type="checkbox" id="removeReferences" checked>
       <label for="removeReferences">去除参考文献角标</label>
@@ -59,6 +96,11 @@
   </div>
   
   <div>支持平台：百度-AI搜索、字节-豆包、腾讯-元宝</div>
+  
+  <div class="privacy-notice">
+    <strong>隐私说明：</strong>本扩展仅在您点击复制按钮时临时处理内容，所有数据处理均在本地完成，不会上传任何内容到服务器。
+    <a href="chrome-extension://EXTENSION_ID/privacy.html" id="privacy-link" target="_blank" class="privacy-link">查看完整隐私政策 »</a>
+  </div>
   <div>无须支持平台：通义千问、文心一言</div>
   
   <button id="saveButton">保存设置</button>

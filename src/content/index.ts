@@ -1,11 +1,13 @@
 // 配置信息
 interface Config {
   removeReferences: boolean;
+  userConsent: boolean; // 添加用户同意选项
 }
 
 // 默认配置
 let config: Config = {
-  removeReferences: true // 默认去除参考文献角标
+  removeReferences: true, // 默认去除参考文献角标
+  userConsent: true // 默认获得用户同意
 };
 
 // AI平台配置
@@ -40,9 +42,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // 从存储中加载配置
 function loadConfig() {
-  chrome.storage.local.get(['removeReferences'], (result) => {
+  chrome.storage.local.get(['removeReferences', 'userConsent'], (result) => {
     if (result.removeReferences !== undefined) {
       config.removeReferences = result.removeReferences;
+    }
+    if (result.userConsent !== undefined) {
+      config.userConsent = result.userConsent;
     }
     console.log('加载配置:', config);
     // 加载配置后应用复制按钮
@@ -240,9 +245,16 @@ function applyToPlatform(platform: PlatformConfig) {
 
 // 为所有支持的平台应用复制按钮
 function applyToPlatforms() {
-  platforms.forEach(platform => {
-    applyToPlatform(platform);
-  });
+  // 只有在用户同意的情况下才应用复制按钮
+  if (config.userConsent) {
+    platforms.forEach(platform => {
+      applyToPlatform(platform);
+    });
+  } else {
+    console.log('用户未同意数据处理，复制功能已禁用');
+    // 移除已存在的复制按钮
+    document.querySelectorAll('.ai-copy-button').forEach(button => button.remove());
+  }
 }
 // 监听DOM变化，为新的回答添加复制按钮
 function observeDOMChanges() {

@@ -7,7 +7,7 @@
     "48": "assets/icon-48.png",
     "128": "assets/icon-128.png"
   },
-  "description": "为AI助手平台（通义千问、文心一言、豆包、元宝、百度）添加复制按钮，整理markdown文本并去除参考文献角标",
+  "description": "为AI助手平台（通义千问、文心一言、豆包、元宝、百度）添加复制按钮，整理markdown文本并去除参考文献角标。本扩展仅在本地处理内容，不会上传任何数据",
   "permissions": ["storage", "clipboardWrite"],
   "host_permissions": [
     "*://*.baidu.com/*",
@@ -25,5 +25,11 @@
   ],
   "background":{
     "service_worker":"background.js"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["privacy.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

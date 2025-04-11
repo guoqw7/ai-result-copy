@@ -1,7 +1,7 @@
 {
   "name": "ai-result-copy",
   "version": "1.0.0",
-  "description": "解决百度-AI搜索、字节-豆包、腾讯-元宝等的网页端问答对话场景复制低效问题。Solve the problem of inefficient replication of web side Q&A dialogue scenes of Baidu -AI search, Byte-Doubao, Tencent-Yuan Bao, etc.",
+  "description": "解决百度-AI搜索、字节-豆包、腾讯-元宝等的网页端问答对话场景复制低效问题。Solve the problem of inefficient replication of web side Q&A dialogue scenes of Baidu -AI search, ByteDance‌-Doubao, Tencent-Yuan Bao, etc.",
   "private": true,
   "scripts": {
     "dev": "webpack --watch --config webpack.config.js --mode=development",

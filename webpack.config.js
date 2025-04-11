@@ -32,6 +32,7 @@ module.exports = (env, argv) => ({
         { from: 'src/manifest.json', to: 'manifest.json' },
         { from: 'src/popup/index.html', to: 'popup.html' },
         { from: 'src/assets', to: 'assets', noErrorOnMissing: true },
+        { from: 'src/privacy.html', to: 'privacy.html' },
       ],
     }),
     argv.mode === 'development' && new ExtReloader({
