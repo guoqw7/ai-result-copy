@@ -4,6 +4,9 @@ import TurndownService from 'turndown';
 import { gfm, tables, strikethrough, taskListItems } from 'turndown-plugin-gfm';
 
 // turndown文档：https://github.com/mixmark-io/turndown
+// 作者有自己信奉推崇的markdown语法：
+//   【1】作者的解释issues：https://github.com/mixmark-io/turndown/issues/161
+//   【2】语法网站：https://daringfireball.net/projects/markdown/syntax#list
 const turndownService = new TurndownService({
   preformattedCode: true,  // 是否保留预格式化代码，设为true时会保持代码块的原始格式，包括缩进和换行
   headingStyle: 'atx',     // 标题样式，'atx'使用#号(如：# 标题)，'setext'使用底线(如：标题\n===)
@@ -244,22 +247,27 @@ export function addCopyButtonToAnswer(answerElement: Element, platform: Platform
       });
 
       const markdownOuterHTML = processMarkdown(markdownElement, platform.removeSelectorList, config);
-      const markdownContent = turndownService.turndown(markdownOuterHTML.innerHTML);
       // 获取原始Markdown文本
       const markdownText = markdownOuterHTML.textContent || '';
+      let clipboardOptions;
       // 为纯文本环境准备纯文本
       const plainText = stripMarkdown(markdownText);
       if (!markdownText) {
         console.error('Markdown内容为空');
         return;
       }
+if(config.copyFormat === 'markdown') {
+  const markdownContent = turndownService.turndown(markdownOuterHTML.innerHTML);
+  clipboardOptions= {'text/plain': new Blob([markdownContent], { type: 'text/plain' })}
 
+}else {
+  clipboardOptions={
+    'text/html': new Blob([markdownOuterHTML.innerHTML], { type: 'text/html' }),
+    'text/plain': new Blob([plainText], { type: 'text/plain' })
+  }
+}
       // 创建包含两种格式的 ClipboardItem
-      const clipboardItem = new ClipboardItem({
-        'text/plain': new Blob([markdownContent], { type: 'text/plain' }),
-        // 'text/html': new Blob([markdownContent], { type: 'text/html' }),
-        // 'text/plain': new Blob([plainText], { type: 'text/plain' })
-      });
+      const clipboardItem = new ClipboardItem(clipboardOptions);
       try {
         // 使用现代Clipboard API复制文本
         await navigator.clipboard.write([clipboardItem]);
@@ -294,13 +302,14 @@ export function applyToPlatform(platform: PlatformConfig, config: Config) {
 
 // 为所有支持的平台应用复制按钮
 export function applyToPlatforms(platforms: PlatformConfig[], config: Config) {
-  // 只有在用户同意的情况下才应用复制按钮
-  if (config.userConsent) {
+  // 只有在用户同意且启用复制功能的情况下才应用复制按钮
+  if (config.userConsent && config.enableCopy) {
     platforms.forEach(platform => {
       applyToPlatform(platform, config);
     });
   } else {
-    console.log('用户未同意数据处理，复制功能已禁用');
+    const reason = !config.userConsent ? '用户未同意数据处理' : '复制功能已禁用';
+    console.log(`复制功能未启用：${reason}`);
     // 移除已存在的复制按钮
     document.querySelectorAll('.ai-copy-button').forEach(button => button.remove());
   }
