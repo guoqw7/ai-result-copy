@@ -1,7 +1,96 @@
 // 复制功能相关代码
 import { Config, PlatformConfig } from './types';
 import TurndownService from 'turndown';
-const turndownService = new TurndownService();
+import { gfm, tables, strikethrough, taskListItems } from 'turndown-plugin-gfm';
+
+// turndown文档：https://github.com/mixmark-io/turndown
+const turndownService = new TurndownService({
+  preformattedCode: true,  // 是否保留预格式化代码，设为true时会保持代码块的原始格式，包括缩进和换行
+  headingStyle: 'atx',     // 标题样式，'atx'使用#号(如：# 标题)，'setext'使用底线(如：标题\n===)
+  bulletListMarker: '-',   // 无序列表的标记符号，可以是 '-', '*', 或 '+'
+  emDelimiter: '*',       // 斜体文本的分隔符，可以是 '_' 或 '*'
+  strongDelimiter: '**',   // 加粗文本的分隔符
+  codeBlockStyle: 'fenced' // 代码块样式，'fenced'使用```包裹，'indented'使用缩进
+  // blankReplacement: function (content, node) {
+  //   // 使用nodeType来判断是否为块级元素
+  //   // nodeType === 1 表示是元素节点
+  //   if (node.nodeType === 1) {
+  //     const display = window.getComputedStyle(node as unknown as Element).display;
+  //     const isBlock = display === 'block' || display === 'list-item' || display.startsWith('table');
+  //     if (isBlock) {
+  //       const prevSibling = node.previousSibling;
+  //       const nextSibling = node.nextSibling;
+  //       // 如果前后都有块级元素，添加双换行
+  //       if (prevSibling?.nodeType === 1 && nextSibling?.nodeType === 1) {
+  //         return '\n\n';
+  //       }
+  //       // 如果只有一侧有块级元素，添加单换行
+  //       return '\n';
+  //     }
+  //   }
+  //   // 对于内联元素或文本节点，保留一个空格以确保可读性
+  //   return ' ';
+  // }
+});
+
+console.log(gfm)
+// var gfm = turndownPluginGfm.gfm
+turndownService.use(gfm)
+
+// 自定义代码块规则
+turndownService.addRule('codeBlock', {
+  filter: function (node: Node): boolean {
+    if (!(node instanceof HTMLElement)) {
+      return false;
+    }
+    // 比如【百度-AI搜索】平台，pre元素下的code元素，不是子元素而是后代元素，为了使其识别为代码块，所以需要特殊处理
+    const codeElement = (node as HTMLElement).querySelector('code');
+    return node.nodeName === 'PRE' && codeElement !== null;
+  },
+  replacement: function (content: string, node: Node): string {
+    const codeElement = (node as HTMLElement).querySelector('code');
+    const code = codeElement?.textContent?.trim() || '';
+    const lang = codeElement?.getAttribute('class') || '';
+    const languageMatch = lang.match(/language-([\w-]+)/i);
+    const language = languageMatch ? languageMatch[1] : '';
+    return '\n```' + (language ? language + '\n' : '\n') + code + '\n```\n';
+  }
+})
+
+// turndownService.addRule('removeZeroWidthJoiner', {
+//   filter: function (node) {
+//     // 已知node是元素节点，直接检查其内容中是否包含零宽连字符
+//     const content = node.innerHTML || node.textContent || '';
+//     const zeroWidthPattern = /\u200c|&zwnj;|&#8204;|&#x200c;/;
+//     return zeroWidthPattern.test(content);
+//   },
+//   replacement: function (content) {
+//     // 直接返回处理后的文本内容
+//     return content.replace(/\u200c|&zwnj;|&#8204;|&#x200c;/g, '');
+//   }
+// });
+
+// 自定义strong规则，确保在处理strong标签时不添加前后空格
+// turndownService.addRule('strong', {
+//   filter: ['strong', 'b'],
+//   replacement: function (content, node, options) {
+//     if (!content.trim()) return ''
+//     // 直接返回加粗内容，不添加额外空格
+//     return options.strongDelimiter + content.trim() + options.strongDelimiter
+//   }
+// });
+
+// 自定义escape函数，避免不必要的转义。
+// 【1】原本的规则：
+//     可确保在将输出编译回 HTML 时，这些字符不会被解释为 Markdown。例如，<h1>1. Hello world</h1> 需要转义为 1\. Hello world，否则它将被解释为列表项而不是标题。因为turndown作者认为这是必要的（具体见：https://github.com/mixmark-io/turndown/pull/244）。
+// 【2】但当你不需要重新将Markdown编译会HTML时：
+//     就无须遵从此规则，就算遵从了，反而会画蛇添足，
+// 【3】所以，我们直接移除转义，只转义特殊Markdown字符。
+turndownService.escape = function(text) {
+  return text
+    .replace(/\\([!"#$%&'()*+,\-./:;<=>?@\[\]^_`{|}~])/g, '$1') // 移除已有的转义
+    .replace(/([*_`])/g, '\\$1'); // 只转义特殊Markdown字符
+};
 // 背景颜色常量
 const backgroundColorOut = 'linear-gradient(135deg, rgba(25, 239, 192, 0.6), rgba(64, 128, 255, 0.4))';
 const backgroundColorOver = 'linear-gradient(135deg, rgba(25, 239, 192, 0.8), rgba(64, 128, 255, 0.6))';
@@ -30,6 +119,13 @@ export function processMarkdown(markdown: Element, removeSelectorList: string[],
     removeSelectorList.forEach(selector => {
       clonedMarkdown.querySelectorAll(selector).forEach(node => node.remove());
     });
+  }
+
+  // 移除零宽连字符
+  const treeWalker = document.createTreeWalker(clonedMarkdown, NodeFilter.SHOW_TEXT);
+  let currentNode;
+  while (currentNode = treeWalker.nextNode()) {
+    currentNode.textContent = currentNode.textContent?.replace(/&zwnj;|\u200c/g, '') ?? '';
   }
   return clonedMarkdown;
 }
@@ -148,10 +244,9 @@ export function addCopyButtonToAnswer(answerElement: Element, platform: Platform
       });
 
       const markdownOuterHTML = processMarkdown(markdownElement, platform.removeSelectorList, config);
-      const htmlContent = turndownService.turndown('markdownOuterHTML.innerHTML');
+      const markdownContent = turndownService.turndown(markdownOuterHTML.innerHTML);
       // 获取原始Markdown文本
       const markdownText = markdownOuterHTML.textContent || '';
-
       // 为纯文本环境准备纯文本
       const plainText = stripMarkdown(markdownText);
       if (!markdownText) {
@@ -161,8 +256,9 @@ export function addCopyButtonToAnswer(answerElement: Element, platform: Platform
 
       // 创建包含两种格式的 ClipboardItem
       const clipboardItem = new ClipboardItem({
-        'text/html': new Blob([htmlContent], { type: 'text/html' }),
-        'text/plain': new Blob([plainText], { type: 'text/plain' })
+        'text/plain': new Blob([markdownContent], { type: 'text/plain' }),
+        // 'text/html': new Blob([markdownContent], { type: 'text/html' }),
+        // 'text/plain': new Blob([plainText], { type: 'text/plain' })
       });
       try {
         // 使用现代Clipboard API复制文本
@@ -189,7 +285,7 @@ export function addCopyButtonToAnswer(answerElement: Element, platform: Platform
 
 // 为特定平台应用复制按钮
 export function applyToPlatform(platform: PlatformConfig, config: Config) {
-  const answerElements = document.querySelectorAll(`[class*="${platform.selector}"]`);
+  const answerElements = document.querySelectorAll(platform.selector);
 
   answerElements.forEach(element => {
     addCopyButtonToAnswer(element, platform, config);
@@ -209,3 +305,40 @@ export function applyToPlatforms(platforms: PlatformConfig[], config: Config) {
     document.querySelectorAll('.ai-copy-button').forEach(button => button.remove());
   }
 }
+
+
+// 自定义链接规则，确保在处理链接时不添加多余空格
+// turndownService.addRule('link', {
+//   filter: function (node) {
+//     return node.nodeName === 'A' && node.getAttribute('href')
+//   },
+//   replacement: function (content, node, options) {
+//     const href = node.getAttribute('href');
+//     const title = node.title ? ` "${node.title}"` : '';
+//     if (!content.trim()) return href;
+//     // 直接返回链接内容，不添加额外空格
+//     return '[' + content.trim() + '](' + href + title + ')';
+//   }
+// });
+
+// 自定义列表项规则，确保在处理列表项时不添加多余空格
+turndownService.addRule('listItem', {
+  filter: 'li',
+  replacement: function (content, node, options) {
+    content = content
+      .replace(/^\n+/, '') // 移除开头的换行
+      .replace(/\n+$/, '\n') // 确保只有一个结尾换行
+      .replace(/\n/gm, '\n    '); // 缩进内容
+    
+    let prefix = options.bulletListMarker + ' ';
+    const parent = node.parentNode;
+    if (parent?.nodeName === 'OL') {
+      const start = (parent as HTMLOListElement).getAttribute('start');
+      const index = Array.prototype.indexOf.call(parent.children, node);
+      const number = (start ? Number(start) + index : index + 1);
+      prefix = number + '. ';
+    }
+    
+    return prefix + content.trim() + (node.nextSibling && !/\n$/.test(content) ? '\n' : '');
+  }
+});

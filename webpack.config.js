@@ -36,14 +36,12 @@ module.exports = (env, argv) => ({
       ],
     }),
     argv.mode === 'development' && new ExtReloader({
-        port: 9091,
         reloadPage: true,
-        manifest: path.resolve(__dirname, 'src/manifest.json'),
         entries: {
-          contentScript: ['content'],
-          background: ['background'],
-          extensionPage: ['popup'],
-        },
+          contentScript: 'content',
+          background: 'background',
+          extensionPage: 'popup'
+        }
       }),
   ].filter(Boolean),
 });
