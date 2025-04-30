@@ -61,6 +61,7 @@ npm run dev:tampermonkey
 npm run build:chrome
 
 # 构建油猴脚本
+# 不使用--mode=development，因为：1、油猴无法加载混淆后的代码；2、让用户直观看到源码可以放心使用
 npm run build:tampermonkey
 
 # 构建所有版本

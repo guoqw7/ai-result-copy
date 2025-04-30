@@ -8,7 +8,7 @@
     "dev:chrome": "webpack --watch --config webpack.config.js --env target=chrome --mode=development",
     "build:chrome": "webpack --config webpack.config.js --env target=chrome --mode=production",
     "dev:tampermonkey": "webpack --watch --config webpack.config.js --env target=tampermonkey --mode=development",
-    "build:tampermonkey": "webpack --config webpack.config.js --env target=tampermonkey --mode=production",
+    "build:tampermonkey": "webpack --config webpack.config.js --env target=tampermonkey --mode=development",
     "build": "npm run build:chrome && npm run build:tampermonkey"
   },
   "devDependencies": {
