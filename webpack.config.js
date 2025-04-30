@@ -1,41 +1,60 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const ExtReloader = require('webpack-ext-reloader');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-module.exports = (env, argv) => ({
-  // 防止Content Security Policy的限制。需要将devtool改为'source-map'。同时，我们需要确保manifest.json中的配置正确，移除不必要的unsafe-eval相关设置。这些修改将解决CSP限制导致的脚本执行错误问题。需要修改webpack配置，将devtool设置为'source-map'以解决Content Security Policy的限制问题。
-  devtool: 'source-map',
-  entry: {
-    popup: './src/popup/index.ts',
-    background: './src/background/index.ts',
-    content: './src/content/index.ts',
-  },
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
-      },
-    ],
-  },
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js'],
-  },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        { from: 'src/manifest.json', to: 'manifest.json' },
-        { from: 'src/popup/index.html', to: 'popup.html' },
-        { from: 'src/assets', to: 'assets', noErrorOnMissing: true },
-        { from: 'src/privacy.html', to: 'privacy.html' },
+module.exports = env => {
+  const { target, mode } = env;
+  const isChrome = target === 'chrome';
+  const isTampermonkey = target === 'tampermonkey';
+  
+  // 基础配置
+  const baseConfig = {
+    // 防止Content Security Policy的限制。需要将devtool改为'source-map'。同时，我们需要确保manifest.json中的配置正确，移除不必要的unsafe-eval相关设置。这些修改将解决CSP限制导致的脚本执行错误问题。需要修改webpack配置，将devtool设置为'source-map'以解决Content Security Policy的限制问题。
+    devtool: 'source-map',
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/,
+        },
+        {
+          test: /\.css$/,
+          use: isTampermonkey 
+            ? ['css-loader'] // 油猴脚本只需要CSS文本
+            : ['style-loader', 'css-loader'] // Chrome扩展需要注入样式
+        },
       ],
-    }),
-    argv.mode === 'development' && new ExtReloader({
+    },
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js', '.css'],
+    }
+  };
+  
+  // Chrome 扩展配置
+  const chromeConfig = {
+    ...baseConfig,
+    entry: {
+      popup: './src/chrome/popup.ts',
+      background: './src/chrome/background.ts',
+      content: './src/chrome/content.ts',
+    },
+    output: {
+      path: path.resolve(__dirname, 'dist/chrome'),
+      filename: '[name].js',
+    },
+    plugins: [
+      new CleanWebpackPlugin(),
+      new CopyPlugin({
+        patterns: [
+          { from: 'src/chrome/manifest.json', to: 'manifest.json' },
+          { from: 'src/chrome/popup/index.html', to: 'popup.html' },
+          { from: 'src/assets', to: 'assets', noErrorOnMissing: true },
+          { from: 'src/privacy.html', to: 'privacy.html' },
+        ],
+      }),
+      mode === 'development' && new ExtReloader({
         reloadPage: true,
         entries: {
           contentScript: 'content',
@@ -43,5 +62,32 @@ module.exports = (env, argv) => ({
           extensionPage: 'popup'
         }
       }),
-  ].filter(Boolean),
-});
+    ].filter(Boolean),
+  };
+
+  // 油猴脚本配置
+  const tampermonkeyConfig = {
+    ...baseConfig,
+    entry: {
+      'ai-assistant-copy-tool': './src/tampermonkey/index.ts',
+    },
+    output: {
+      path: path.resolve(__dirname, 'dist/tampermonkey'),
+      filename: '[name].js',
+    },
+    externals: {
+      'turndown': 'TurndownService',
+      'turndown-plugin-gfm': 'turndownPluginGfm'
+    },
+    plugins: [
+      new CleanWebpackPlugin(),
+    ],
+  };
+
+  // 根据目标返回对应配置
+  if (isTampermonkey) {
+    return tampermonkeyConfig;
+  } else {
+    return chromeConfig; // 默认为 Chrome 扩展
+  }
+};

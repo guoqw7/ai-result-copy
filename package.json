@@ -4,14 +4,20 @@
   "description": "解决百度-AI搜索、字节-豆包、腾讯-元宝等的网页端问答对话场景复制低效问题。Solve the problem of inefficient replication of web side Q&A dialogue scenes of Baidu -AI search, ByteDance‌-Doubao, Tencent-Yuan Bao, etc.",
   "private": true,
   "scripts": {
-    "start": "npm run dev",
-    "dev": "webpack --watch --config webpack.config.js --mode=development",
-    "build": "webpack --config webpack.config.js --mode=production"
+    "start": "npm run dev:chrome",
+    "dev:chrome": "webpack --watch --config webpack.config.js --env target=chrome --mode=development",
+    "build:chrome": "webpack --config webpack.config.js --env target=chrome --mode=production",
+    "dev:tampermonkey": "webpack --watch --config webpack.config.js --env target=tampermonkey --mode=development",
+    "build:tampermonkey": "webpack --config webpack.config.js --env target=tampermonkey --mode=production",
+    "build": "npm run build:chrome && npm run build:tampermonkey"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.254",
     "@types/turndown": "^5.0.5",
+    "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
     "webpack": "^5.89.0",
