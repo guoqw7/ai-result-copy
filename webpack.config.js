@@ -82,6 +82,10 @@ module.exports = env => {
     plugins: [
       new CleanWebpackPlugin(),
     ],
+    // 即使在production模式下也禁用代码压缩
+    optimization: {
+      minimize: false
+    }
   };
 
   // 根据目标返回对应配置
