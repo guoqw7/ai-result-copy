@@ -15,18 +15,18 @@
 // @require      https://cdn.jsdelivr.net/npm/turndown-plugin-gfm@1.0.2/dist/turndown-plugin-gfm.js
 // ==/UserScript==
 
-import { Config, PlatformConfig, DEFAULT_CONFIG, PLATFORMS } from '../shared/types';
+import { Config, PlatformConfig, DEFAULT_CONFIG, PLATFORMS } from '@shared/types';
 import {
   initTurndownService,
   applyToPlatforms,
   observeDOMChanges,
   createGlowingAnimationStyle
-} from '../shared/copy';
-import { removeAllCopyButtons } from '../shared/ui';
-import { createSettingsPanelHTML } from '../shared/templates';
-import { showStatusMessage } from '../shared/ui';
-import commonCss from '../shared/styles/common.css';
-import tampermonkeyCss from '../shared/styles/tampermonkey.css';
+} from '@shared/copy';
+import { removeAllCopyButtons } from '@shared/ui';
+import { createSettingsPanelHTML } from '@shared/templates';
+import { showStatusMessage } from '@shared/ui';
+import commonCss from '@shared/styles/common.css';
+import tampermonkeyCss from '@shared/styles/tampermonkey.css';
 
 (function() {
     'use strict';
