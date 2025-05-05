@@ -29,6 +29,12 @@ module.exports = env => {
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.css'],
+      // 添加路径别名
+      alias: {
+        '@shared': path.resolve(__dirname, 'src/shared'),
+        '@chrome': path.resolve(__dirname, 'src/chrome'),
+        '@tampermonkey': path.resolve(__dirname, 'src/tampermonkey')
+      }
     }
   };
   

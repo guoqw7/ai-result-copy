@@ -1,13 +1,13 @@
 // Chrome 扩展内容脚本
-import { Config, DEFAULT_CONFIG, PLATFORMS, PlatformConfig } from '../shared/types';
+import { Config, DEFAULT_CONFIG, PLATFORMS, PlatformConfig } from '@shared/types';
 import { 
   initTurndownService, 
   createGlowingAnimationStyle, 
   applyToPlatforms, 
   observeDOMChanges 
-} from '../shared/copy';
-import { removeAllCopyButtons } from '../shared/ui';
-import '../shared/styles/common.css';
+} from '@shared/copy';
+import { removeAllCopyButtons } from '@shared/ui';
+import '@shared/styles/common.css';
 
 // 配置
 let config: Config = { ...DEFAULT_CONFIG };

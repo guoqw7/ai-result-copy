@@ -1,8 +1,8 @@
 // 扩展的弹出窗口脚本
-import { Config, DEFAULT_CONFIG } from '../shared/types';
-import { createSettingsPanelHTML } from '../shared/templates';
-import { showStatusMessage } from '../shared/ui';
-import '../shared/styles/common.css'; // 导入共享样式
+import { Config, DEFAULT_CONFIG } from '@shared/types';
+import { createSettingsPanelHTML } from '@shared/templates';
+import { showStatusMessage } from '@shared/ui';
+import '@shared/styles/common.css'; // 导入共享样式
 
 // 当文档加载完成时初始化UI
 document.addEventListener('DOMContentLoaded', () => {
