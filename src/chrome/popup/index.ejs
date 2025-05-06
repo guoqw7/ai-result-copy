@@ -1,0 +1,26 @@
+<%
+  // 导入共享模板模块 - 直接使用TypeScript模块
+  const templates = require('@shared/templates.ts');
+  
+  // 准备配置参数
+  const config = JSON.parse(defaultConfig);
+
+  
+  // 生成设置面板HTML
+  const settingsPanelHTML = templates.createSettingsPanelHTML(config);
+%>
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI助手复制工具</title>
+    <!-- 所有样式已移至common.css -->
+  </head>
+  <body class="popup-body">
+    <div id="settings-container">
+      <%= settingsPanelHTML %>
+    </div>
+    <!-- HtmlWebpackPlugin 会自动添加 script 标签 -->
+  </body>
+</html> 

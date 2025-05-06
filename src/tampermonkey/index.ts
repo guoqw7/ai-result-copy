@@ -140,7 +140,7 @@ import tampermonkeyCss from '@shared/styles/tampermonkey.css';
                 newConfig.enableCopy = target.checked;
             } else if (target.id === 'tm-user-consent') {
                 newConfig.userConsent = target.checked;
-                const consentStatus = document.getElementById('tm-consent-status');
+                const consentStatus = document.getElementById('tm-consentStatus');
                 if (consentStatus) {
                     consentStatus.style.display = target.checked ? 'none' : 'block';
                 }
@@ -249,34 +249,22 @@ import tampermonkeyCss from '@shared/styles/tampermonkey.css';
         
         panelPosition.top = Math.min(newTop, maxTop);
         button.style.top = `${panelPosition.top}px`;
-        
-        // 如果面板是打开的，同时更新面板位置
-        if (panelPosition.isPanelOpen && settingsPanel) {
-            const settingsContent = settingsPanel.querySelector('.tm-settings-content') as HTMLElement;
-            if (settingsContent) {
-                adjustPanelPosition(settingsContent);
-            }
-        }
     }
     
-    // 处理鼠标松开事件
+    // 处理鼠标释放事件
     function handleMouseUp(e: MouseEvent): void {
         if (!panelPosition.isDragging) return;
         
         panelPosition.isDragging = false;
         
-        // 保存新位置到GM存储
+        // 保存按钮位置
         GM_setValue('settingsPanelTop', panelPosition.top);
         
-        // 移除临时事件监听器
+        // 移除临时全局鼠标事件监听器
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
-        
-        // 阻止事件冒泡，防止触发click事件
-        e.preventDefault();
-        e.stopPropagation();
     }
-
+    
     // 调整面板位置，确保在屏幕内
     function adjustPanelPosition(panel: HTMLElement) {
         const button = document.querySelector('.tm-fixed-settings-button') as HTMLElement;
@@ -302,31 +290,17 @@ import tampermonkeyCss from '@shared/styles/tampermonkey.css';
         const windowHeight = window.innerHeight;
         const panelHeight = panelRect.height;
         
-        // 自动调整，优先在按钮下方显示
-        if (buttonTop + panelHeight < windowHeight) {
-            // 如果面板在按钮下方能完全显示
-            panel.style.top = `${buttonTop}px`;
-            panel.style.bottom = 'auto';
-        } else if (buttonTop - panelHeight > 0) {
-            // 如果面板在按钮上方能完全显示
-            panel.style.bottom = `${windowHeight - buttonTop}px`;
-            panel.style.top = 'auto';
-        } else {
-            // 都显示不全，尽量适应屏幕
-            if (buttonTop < windowHeight / 2) {
-                // 按钮在屏幕上半部分，面板放在下方
-                panel.style.top = `${buttonTop}px`;
-                panel.style.bottom = 'auto';
-                panel.style.maxHeight = `${windowHeight - buttonTop - 20}px`;
-                panel.style.overflowY = 'auto';
-            } else {
-                // 按钮在屏幕下半部分，面板放在上方
-                panel.style.bottom = `${windowHeight - buttonTop}px`;
-                panel.style.top = 'auto';
-                panel.style.maxHeight = `${buttonTop - 20}px`;
-                panel.style.overflowY = 'auto';
-            }
+        // 尝试将面板垂直居中于按钮
+        let panelTop = buttonTop - (panelHeight / 2) + (buttonRect.height / 2);
+        
+        // 确保面板不超出屏幕上下边界
+        if (panelTop < 10) {
+            panelTop = 10;
+        } else if (panelTop + panelHeight > windowHeight - 10) {
+            panelTop = windowHeight - panelHeight - 10;
         }
+        
+        panel.style.top = `${panelTop}px`;
     }
 
     // 打开设置面板的方法

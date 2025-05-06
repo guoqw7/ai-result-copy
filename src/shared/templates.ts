@@ -1,6 +1,14 @@
 // 共享的HTML模板
 import { Config } from './types';
 
+// 为了便于webpack构建时调用
+export const DEFAULT_TEMPLATE_CONFIG = {
+  removeReferences: true,
+  userConsent: true,
+  copyFormat: 'markdown' as 'markdown' | 'html',
+  enableCopy: true
+};
+
 // 生成设置面板的HTML内容，为Chrome扩展和油猴脚本提供统一UI
 export function createSettingsPanelHTML(
   config: Config, 
@@ -25,7 +33,7 @@ export function createSettingsPanelHTML(
     formatHtml: `${prefix}formatHtml`,
     removeReferences: `${prefix}removeReferences`,
     userConsent: `${prefix}user-consent`,
-    consentStatus: `${prefix}consent-status`,
+    consentStatus: `${prefix}consentStatus`,
     saveButton: `${prefix}saveButton`,
     status: `${prefix}status`
   };
@@ -80,7 +88,7 @@ export function createSettingsPanelHTML(
         <a
           href="${privacyLinkUrl}"
           id="${prefix}privacy-link"
-          target="blank"
+          target=${prefix ? 'blank' : '_blank'}
           class="privacy-link"
         >查看完整隐私政策 »</a>
         ` : ''}
@@ -97,4 +105,21 @@ export function createSettingsPanelHTML(
     <button id="${ids.saveButton}">保存设置</button>
     <div id="${ids.status}" class="status-message"></div>
   `;
+}
+
+// 为了支持在webpack构建时使用CommonJS模块
+// 使用类型判断来避免TypeScript错误
+declare global {
+  interface NodeModule {
+    exports: any;
+  }
+  
+  var module: NodeModule | undefined;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    createSettingsPanelHTML,
+    DEFAULT_CONFIG: DEFAULT_TEMPLATE_CONFIG
+  };
 } 

@@ -2,11 +2,11 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const ExtReloader = require('webpack-ext-reloader');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = env => {
-  const { target, mode } = env;
-  const isChrome = target === 'chrome';
   const { target, mode, browser } = env;
+  // const isChrome = target === 'chrome';
   const isTampermonkey = target === 'tampermonkey';
   const isFirefox = browser === 'firefox';
   
@@ -40,23 +40,39 @@ module.exports = env => {
     }
   };
   
+  // 配置允许HTML模板处理TypeScript文件
+  const htmlWebpackOptions = {
+    template: './src/chrome/popup/index.ejs',
+    filename: 'popup.html',
+    chunks: ['popup'],
+    templateParameters: {
+      defaultConfig: JSON.stringify({
+        removeReferences: true,
+        userConsent: true,
+        copyFormat: 'markdown',
+        enableCopy: true
+      })
+    }
+  };
+  
   // Chrome 扩展配置
   const chromeConfig = {
     ...baseConfig,
     entry: {
-      popup: './src/chrome/popup.ts',
+      popup: './src/chrome/popup/index.ts',
       background: './src/chrome/background.ts',
       content: './src/chrome/content.ts',
     },
     output: {
-      path: path.resolve(__dirname, 'dist/chrome'),
+      path: path.resolve(__dirname, isFirefox ? 'dist/firefox' : 'dist/chrome'),
       filename: '[name].js',
     },
     plugins: [
       new CleanWebpackPlugin(),
+      // 使用HtmlWebpackPlugin预编译模板
+      new HtmlWebpackPlugin(htmlWebpackOptions),
       new CopyPlugin({
         patterns: [
-          { from: 'src/chrome/popup/index.html', to: 'popup.html' },
           { 
             from: 'src/chrome/manifest.json', 
             to: 'manifest.json',
@@ -84,6 +100,7 @@ module.exports = env => {
               return Buffer.from(JSON.stringify(manifest, null, 2), 'utf8');
             }
           },
+          // 移除popup.html，因为现在由HtmlWebpackPlugin生成
           { from: 'src/assets', to: 'assets', noErrorOnMissing: true },
           { from: 'src/privacy.html', to: 'privacy.html' },
         ],
