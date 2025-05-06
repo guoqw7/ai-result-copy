@@ -6,7 +6,9 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = env => {
   const { target, mode } = env;
   const isChrome = target === 'chrome';
+  const { target, mode, browser } = env;
   const isTampermonkey = target === 'tampermonkey';
+  const isFirefox = browser === 'firefox';
   
   // 基础配置
   const baseConfig = {
@@ -54,8 +56,34 @@ module.exports = env => {
       new CleanWebpackPlugin(),
       new CopyPlugin({
         patterns: [
-          { from: 'src/chrome/manifest.json', to: 'manifest.json' },
           { from: 'src/chrome/popup/index.html', to: 'popup.html' },
+          { 
+            from: 'src/chrome/manifest.json', 
+            to: 'manifest.json',
+            transform(content) {
+              // 解析manifest.json内容
+              const manifest = JSON.parse(content.toString('utf8'));
+              
+              // 根据目标浏览器修改background配置
+              if (isFirefox) {
+                manifest.background = {
+                  scripts: ["background.js"]
+                };
+                manifest.browser_specific_settings = {
+                  "gecko": {
+                    "id": "ai-assistant-copy-tool@example.com"
+                  }
+                };
+              } else {
+                manifest.background = {
+                  service_worker: "background.js"
+                };
+              }
+              
+              // 返回修改后的manifest内容，确保UTF-8编码
+              return Buffer.from(JSON.stringify(manifest, null, 2), 'utf8');
+            }
+          },
           { from: 'src/assets', to: 'assets', noErrorOnMissing: true },
           { from: 'src/privacy.html', to: 'privacy.html' },
         ],

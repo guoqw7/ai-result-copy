@@ -7,9 +7,11 @@
     "start": "npm run dev:chrome",
     "dev:chrome": "webpack --watch --config webpack.config.js --env target=chrome --mode=development",
     "build:chrome": "webpack --config webpack.config.js --env target=chrome --mode=production",
+    "dev:firefox": "webpack --watch --config webpack.config.js --env target=chrome browser=firefox --mode=development",
+    "build:firefox": "webpack --config webpack.config.js --env target=chrome browser=firefox --mode=production",
     "dev:tampermonkey": "webpack --watch --config webpack.config.js --env target=tampermonkey --mode=development",
     "build:tampermonkey": "webpack --config webpack.config.js --env target=tampermonkey --mode=production",
-    "build": "npm run build:chrome && npm run build:tampermonkey"
+    "build": "npm run build:chrome && npm run build:firefox && npm run build:tampermonkey"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.254",
